@@ -381,17 +381,16 @@ namespace Content.Server.Zombies
                 if (!TryComp<MobStateComponent>(entity, out var mobState))
                     continue;
 
-                if (HasComp<ZombieComponent>(entity))
+                if (HasComp<ZombieComponent>(entity) || HasComp<IncurableZombieComponent>(entity))
                 {
                     args.BonusDamage = -args.BaseDamage;
+                    continue;
                 }
-                else
+
+                if (!HasComp<ZombieImmuneComponent>(entity) && !HasComp<NonSpreaderZombieComponent>(args.User) && _random.Prob(GetZombieInfectionChance(entity, component)))
                 {
-                    if (!HasComp<ZombieImmuneComponent>(entity) && !HasComp<NonSpreaderZombieComponent>(args.User) && _random.Prob(GetZombieInfectionChance(entity, component)))
-                    {
-                        EnsureComp<PendingZombieComponent>(entity);
-                        EnsureComp<ZombifyOnDeathComponent>(entity);
-                    }
+                    EnsureComp<PendingZombieComponent>(entity);
+                    EnsureComp<ZombifyOnDeathComponent>(entity);
                 }
 
                 if (_mobState.IsIncapacitated(entity, mobState) && !HasComp<ZombieComponent>(entity) && !HasComp<ZombieImmuneComponent>(entity))
